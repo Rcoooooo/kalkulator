@@ -377,67 +377,92 @@ Tambah
 
 function addItem(category,id){
 
-const select=document.getElementById(id);
+    const select = document.getElementById(id);
 
-const option=
-select.options[select.selectedIndex];
+    const option =
+    select.options[select.selectedIndex];
 
-selectedItems.push({
-category:category,
-name:option.dataset.name,
-price:Number(option.value)
-});
+    const item = {
+        category: category,
+        name: option.dataset.name,
+        price: Number(option.value)
+    };
 
-updateResult();
+    const sudahAda = selectedItems.find(x =>
+        x.category === item.category &&
+        x.name === item.name
+    );
 
+    if(!sudahAda){
+        selectedItems.push(item);
+    }
+
+    updateResult();
 }
 
 function updateResult(){
 
-let html="";
-let text="RK GARAGE CALCULATOR\n\n";
-let total=0;
+    let html = "";
+    let text = "RK GARAGE CALCULATOR\n\n";
+    let total = 0;
 
-selectedItems.forEach((item,index)=>{
+    const grouped = {};
 
-total += item.price;
+    selectedItems.forEach(item=>{
 
-html += `
-<div class="selected-item">
+        total += item.price;
 
-<div>
-<b>${item.category}</b><br>
-${item.name} - $${item.price.toLocaleString()}
-</div>
+        if(!grouped[item.category]){
+            grouped[item.category] = [];
+        }
 
-<button
-class="remove-btn"
-onclick="removeItem(${index})">
-Hapus
-</button>
+        grouped[item.category].push(item);
 
-</div>
-`;
+    });
 
-text +=
-`${item.category} : ${item.name} ($${item.price.toLocaleString()})\n`;
+    Object.keys(grouped).forEach(category=>{
 
-});
+        html += `
+        <div class="selected-item">
+            <div>
+                <b>${category}</b><br>
+        `;
 
-text +=
-`\nTOTAL ITEM : ${selectedItems.length}
+        text += `${category} :\n`;
+
+        grouped[category].forEach(item=>{
+
+            html += `
+            • ${item.name}
+            ($${item.price.toLocaleString()})<br>
+            `;
+
+            text +=
+            `- ${item.name} ($${item.price.toLocaleString()})\n`;
+
+        });
+
+        html += `
+            </div>
+        </div>
+        `;
+
+        text += "\n";
+
+    });
+
+    text +=
+`TOTAL ITEM : ${selectedItems.length}
 TOTAL BIAYA : $${total.toLocaleString()}`;
 
-document.getElementById("selectedList").innerHTML=html;
+    document.getElementById("selectedList").innerHTML = html;
+    document.getElementById("result").value = text;
 
-document.getElementById("result").value=text;
+    document.getElementById("count").innerText =
+    selectedItems.length + " item dipilih";
 
-document.getElementById("count").innerText=
-selectedItems.length + " item dipilih";
-
-document.getElementById("total").innerText=
-"$" + total.toLocaleString();
-
+    document.getElementById("total").innerText =
+    "$" + total.toLocaleString();
 }
 
 function removeItem(index){
