@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RK Garage Calculator</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+font-family:'Poppins',sans-serif;
+background:radial-gradient(circle at top,#2a0845 0%,#14051f 45%,#07070c 100%);
+color:white;
+padding:30px 20px;
+min-height:100vh;
+}
+
+.container{
+max-width:1200px;
+margin:auto;
+}
+
+.logo{
+    width:100px;
+    max-width:50%;
+    display:block;
+    margin:0 auto 15px;
+    filter:
+        drop-shadow(0 0 15px rgba(192,132,252,.5))
+        drop-shadow(0 0 30px rgba(168,85,247,.3));
+}
+
+.header{
+    text-align:center;
+    margin-bottom:35px;
+}
+
+.header h1{
+    font-size:58px;
+    font-weight:700;
+    color:#f5d0fe;
+    text-shadow:
+        0 0 25px rgba(192,132,252,.5);
+}
+
+@media(max-width:600px){
+
+    .logo{
+        width:160px;
+    }
+
+    .header h1{
+        font-size:38px;
+    }
+
+}
+
+.header p{
+color:#d8b4fe;
+margin-top:10px;
+}
+
+#list{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+gap:20px;
+}
+
+.section{
+background:rgba(255,255,255,.05);
+border-radius:20px;
+padding:20px;
+backdrop-filter:blur(10px);
+}
+
+.section h2{
+margin-bottom:15px;
+color:#f5d0fe;
+font-size:18px;
+}
+
+.select-wrap{
+display:flex;
+gap:10px;
+}
+
+select{
+flex:1;
+padding:12px;
+border:none;
+border-radius:12px;
+background:#1b1328;
+color:white;
+}
+
+button{
+border:none;
+padding:12px 18px;
+border-radius:12px;
+cursor:pointer;
+background:linear-gradient(135deg,#9333ea,#c084fc);
+color:white;
+font-weight:600;
+}
+
+.selected-box{
+margin-top:30px;
+background:rgba(255,255,255,.05);
+padding:20px;
+border-radius:20px;
+}
+
+.selected-item{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:12px;
+border-bottom:1px solid rgba(255,255,255,.08);
+}
+
+.selected-item:last-child{
+border-bottom:none;
+}
+
+.remove-btn{
+background:#dc2626;
+padding:8px 12px;
+font-size:12px;
+}
+
+textarea{
+width:100%;
+height:220px;
+margin-top:15px;
+padding:15px;
+border:none;
+border-radius:12px;
+background:#0f0f14;
+color:white;
+resize:none;
+}
+
+.total-box{
+margin-top:20px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+flex-wrap:wrap;
+gap:15px;
+}
+
+.total{
+font-size:42px;
+font-weight:700;
+}
+
+.actions{
+display:flex;
+gap:10px;
+}
+
+@media(max-width:768px){
+
+.total-box{
+flex-direction:column;
+text-align:center;
+}
+
+.actions{
+width:100%;
+flex-direction:column;
+}
+
+.actions button{
+width:100%;
+}
+
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<div class="header">
+
+    <img
+        src="logo-rk.png"
+        alt="RK Garage Logo"
+        class="logo"
+    >
+
+    <p>
+        Pilih modifikasi kendaraan lalu klik Tambah
+    </p>
+
+</div>
+
+<div id="list"></div>
+
+<div class="selected-box">
+
+<h2>Daftar Pilihan</h2>
+
+<div id="selectedList"></div>
+
+<textarea id="result" readonly></textarea>
+
+<div class="total-box">
+
+<div>
+<div id="count">0 item dipilih</div>
+<div class="total" id="total">$0</div>
+</div>
+
+<div class="actions">
+<button onclick="copyResult()">Copy Hasil</button>
+<button onclick="resetAll()">Reset Semua</button>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+const data = {
+
+"PAINT":[
+["PRIMARY",20000],
+["SECONDARY",20000],
+["PEARLESCENT",15000],
+["INTERIOR",15000],
+["CHAMELEON",25000],
+["DASHBOARD",15000]
+],
+
+"APPEARANCE":[
+["SPOILER",25000],
+["FRONT BUMPER",25000],
+["REAR BUMPER",25000],
+["ROOF",25000],
+["SIDE SKIRT",20000],
+["EXHAUST",15000],
+["FRAME (ROLLCAGE)",15000],
+["GRILL",10000],
+["HOOD",30000],
+["LEFT FENDER",15000],
+["ENGINE BLOCK",10000],
+["LIVERY",15000],
+["TRIM",15000],
+["STRUTS",13000],
+["FRONT VANITY PLATES",13000],
+["LICENSE PLATE HOLDER",13000],
+["LICENSE PLATE",20000],
+["PLAQUE",13000],
+["SPEAKERS",13000],
+["TRUNK",15000],
+["WINGS",25000],
+["FUEL TANK",15000],
+["AERIALS",15000],
+["ARCH COVERS",15000],
+["HORNS",15000],
+["HYDRAULICS",15000]
+],
+
+"WINDOW TINT":[
+["0%",2000],
+["10%",5000],
+["50%",7000],
+["60%",10000],
+["80%",20000],
+["100%",30000]
+],
+
+"INTERIOR":[
+["INTERIOR",15000],
+["ORNAMENTS",15000],
+["DASHBOARD",15000],
+["DIAL",15000],
+["SHIFTING LEAVERS",15000],
+["DOOR SPEAKER",13000],
+["SEATS",15000],
+["STEERING WHEELS",15000],
+["VEHICLE EXTRAS",15000]
+],
+
+"NEON & XENON":[
+["NEON ALL 4 SIDE",25000],
+["NEON COLOR",15000],
+["XENON INSTALLATION",25000],
+["XENON COLOR",15000]
+],
+
+"WHEEL":[
+["WHEEL COLOR",15000],
+["TIRE SMOKE COLOR",20000],
+["WHEEL TYPES",30000],
+["TIRE ENHANCEMENTS",25000],
+["TIRE DESIGN",15000],
+["CAMBER (STANCER)",50000],
+["SPACERS (STANCER)",30000]
+],
+
+"PERFORMANCE":[
+["ENGINE (CAR)",150000],
+["ENGINE (BIKE)",120000],
+["BRAKES",100000],
+["TRANSMISSION",140000],
+["ARMOUR",150000],
+["TURBO",110000]
+],
+
+"SUSPENSION":[
+["LOWERED",15000],
+["STREET",20000],
+["SPORTS",35000],
+["COMPETITION",60000]
+]
+
+};
+
+let selectedItems = [];
+
+function render(){
+
+const list=document.getElementById("list");
+
+Object.keys(data).forEach((category,index)=>{
+
+let options="";
+
+data[category].forEach(item=>{
+
+options += `
+<option
+data-name="${item[0]}"
+value="${item[1]}">
+${item[0]} - $${item[1].toLocaleString()}
+</option>
+`;
+
+});
+
+list.innerHTML += `
+<div class="section">
+
+<h2>${category}</h2>
+
+<div class="select-wrap">
+
+<select id="select${index}">
+${options}
+</select>
+
+<button onclick="addItem('${category}','select${index}')">
+Tambah
+</button>
+
+</div>
+
+</div>
+`;
+
+});
+
+}
+
+function addItem(category,id){
+
+const select=document.getElementById(id);
+
+const option=
+select.options[select.selectedIndex];
+
+selectedItems.push({
+category:category,
+name:option.dataset.name,
+price:Number(option.value)
+});
+
+updateResult();
+
+}
+
+function updateResult(){
+
+let html="";
+let text="RK GARAGE CALCULATOR\n\n";
+let total=0;
+
+selectedItems.forEach((item,index)=>{
+
+total += item.price;
+
+html += `
+<div class="selected-item">
+
+<div>
+<b>${item.category}</b><br>
+${item.name} - $${item.price.toLocaleString()}
+</div>
+
+<button
+class="remove-btn"
+onclick="removeItem(${index})">
+Hapus
+</button>
+
+</div>
+`;
+
+text +=
+`${item.category} : ${item.name} ($${item.price.toLocaleString()})\n`;
+
+});
+
+text +=
+`\nTOTAL ITEM : ${selectedItems.length}
+TOTAL BIAYA : $${total.toLocaleString()}`;
+
+document.getElementById("selectedList").innerHTML=html;
+
+document.getElementById("result").value=text;
+
+document.getElementById("count").innerText=
+selectedItems.length + " item dipilih";
+
+document.getElementById("total").innerText=
+"$" + total.toLocaleString();
+
+}
+
+function removeItem(index){
+
+selectedItems.splice(index,1);
+
+updateResult();
+
+}
+
+function copyResult(){
+
+navigator.clipboard.writeText(
+document.getElementById("result").value
+);
+
+alert("Hasil berhasil dicopy");
+}
+
+function resetAll(){
+
+selectedItems=[];
+
+updateResult();
+
+}
+
+render();
+
+</script>
+
+</body>
+</html>
