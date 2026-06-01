@@ -170,6 +170,30 @@ color:white;
 resize:none;
 }
 
+.customer-form{
+    display:grid;
+    grid-template-columns:
+    repeat(auto-fit,minmax(250px,1fr));
+
+    gap:15px;
+    margin-top:15px;
+}
+
+.customer-form input{
+    padding:14px;
+    border:none;
+    border-radius:12px;
+    background:#1b1328;
+    color:white;
+    font-size:14px;
+}
+
+.customer-form input:focus{
+    outline:none;
+    box-shadow:
+    0 0 0 2px rgba(168,85,247,.4);
+}
+
 .total-box{
 margin-top:20px;
 display:flex;
@@ -212,45 +236,92 @@ width:100%;
 
 <div class="container">
 
-<div class="header">
+    <div class="header">
 
-    <img
-        src="logo-rk.png"
-        alt="RK Garage Logo"
-        class="logo"
-    >
+        <img
+            src="logo-rk.png"
+            alt="RK Garage Logo"
+            class="logo">
 
-    <p>
-        Pilih modifikasi kendaraan lalu klik Tambah
-    </p>
+        <p>
+            Pilih modifikasi kendaraan lalu klik Tambah
+        </p>
 
-</div>
+    </div>
 
-<div id="list"></div>
+    <!-- DATA KENDARAAN -->
 
-<div class="selected-box">
+    <div class="selected-box">
 
-<h2>Daftar Pilihan</h2>
+        <h2>Data Pelanggan</h2>
 
-<div id="selectedList"></div>
+        <div class="customer-form">
 
-<textarea id="result" readonly></textarea>
+            <input
+                type="text"
+                id="customerName"
+                placeholder="Nama Customer">
 
-<div class="total-box">
+            <input
+                type="text"
+                id="plateNumber"
+                placeholder="Plat Kendaraan">
 
-<div>
-<div id="count">0 item dipilih</div>
-<div class="total" id="total">$0</div>
-</div>
+            <input
+                type="text"
+                id="serviceType"
+                placeholder="Jenis Layanan"
+                readonly>
 
-<div class="actions">
-<button onclick="copyResult()">Copy Hasil</button>
-<button onclick="resetAll()">Reset Semua</button>
-</div>
+        </div>
 
-</div>
+    </div>
 
-</div>
+    <br>
+
+    <!-- PILIH PART -->
+
+    <div id="list"></div>
+
+    <!-- HASIL PILIHAN -->
+
+    <div class="selected-box">
+
+        <h2>Daftar Pilihan</h2>
+
+        <div id="selectedList"></div>
+
+        <textarea
+            id="result"
+            readonly></textarea>
+
+        <div class="total-box">
+
+            <div>
+                <div id="count">
+                    0 item dipilih
+                </div>
+
+                <div class="total" id="total">
+                    $0
+                </div>
+            </div>
+
+            <div class="actions">
+
+                <button onclick="copyResult()">
+                    Copy Hasil
+                </button>
+
+                <button onclick="resetAll()">
+                    Reset Semua
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
 
 </div>
 
@@ -354,6 +425,37 @@ const data = {
 
 let selectedItems = [];
 
+function updateServiceType(){
+
+    const categories = [
+        ...new Set(
+            selectedItems.map(
+                item => item.category
+            )
+        )
+    ];
+
+    document.getElementById("serviceType").value =
+    categories.join(", ");
+
+}
+
+function updateServiceType(){
+
+    const categories =
+    [...new Set(
+        selectedItems.map(
+            item => item.category
+        )
+    )];
+
+    document.getElementById(
+        "serviceType"
+    ).value =
+    categories.join(", ");
+
+}
+
 function render(){
 
 const list=document.getElementById("list");
@@ -421,12 +523,34 @@ function addItem(category,id){
     }
 
     updateResult();
+    updateServiceType();
 }
 
 function updateResult(){
 
     let html = "";
-    let text = "";
+    const nama =
+document.getElementById(
+"customerName"
+).value || "-";
+
+const plat =
+document.getElementById(
+"plateNumber"
+).value || "-";
+
+const layanan =
+document.getElementById(
+"serviceType"
+).value || "-";
+
+let text =
+`
+NAMA : ${nama}
+PLAT : ${plat}
+JENIS LAYANAN : ${layanan}
+
+`;
     let total = 0;
 
     const grouped = {};
@@ -476,7 +600,7 @@ function updateResult(){
             `;
 
             text +=
-            `- ${item.name} ($${item.price.toLocaleString()})\n`;
+            `- ${item.name} \n`;
 
         });
 
@@ -490,8 +614,7 @@ function updateResult(){
     });
 
     text +=
-`TOTAL ITEM : ${selectedItems.length}
-TOTAL BIAYA : $${total.toLocaleString()}`;
+`TOTAL BIAYA : $${total.toLocaleString()}`;
 
     document.getElementById("selectedList").innerHTML = html;
     document.getElementById("result").value = text;
@@ -505,9 +628,10 @@ TOTAL BIAYA : $${total.toLocaleString()}`;
 
 function removeItem(index){
 
-selectedItems.splice(index,1);
+    selectedItems.splice(index,1);
 
-updateResult();
+    updateResult();
+    updateServiceType();
 
 }
 
@@ -522,9 +646,21 @@ alert("Hasil berhasil dicopy");
 
 function resetAll(){
 
-selectedItems=[];
+    selectedItems=[];
 
-updateResult();
+    document.getElementById(
+        "customerName"
+    ).value="";
+
+    document.getElementById(
+        "plateNumber"
+    ).value="";
+
+    document.getElementById(
+        "serviceType"
+    ).value="";
+
+    updateResult();
 
 }
 
