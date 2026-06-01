@@ -110,6 +110,29 @@ color:white;
 font-weight:600;
 }
 
+.item-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin:6px 0;
+    gap:10px;
+}
+
+.remove-btn{
+    background:#dc2626;
+    color:#fff;
+    border:none;
+    border-radius:8px;
+    padding:6px 10px;
+    cursor:pointer;
+    font-size:12px;
+    font-weight:600;
+}
+
+.remove-btn:hover{
+    background:#b91c1c;
+}
+
 .selected-box{
 margin-top:30px;
 background:rgba(255,255,255,.05);
@@ -408,7 +431,7 @@ function updateResult(){
 
     const grouped = {};
 
-    selectedItems.forEach(item=>{
+    selectedItems.forEach((item,index)=>{
 
         total += item.price;
 
@@ -416,7 +439,10 @@ function updateResult(){
             grouped[item.category] = [];
         }
 
-        grouped[item.category].push(item);
+        grouped[item.category].push({
+            ...item,
+            index:index
+        });
 
     });
 
@@ -424,8 +450,8 @@ function updateResult(){
 
         html += `
         <div class="selected-item">
-            <div>
-                <b>${category}</b><br>
+            <div style="width:100%;">
+                <b>${category}</b><br><br>
         `;
 
         text += `${category} :\n`;
@@ -433,8 +459,20 @@ function updateResult(){
         grouped[category].forEach(item=>{
 
             html += `
-            • ${item.name}
-            ($${item.price.toLocaleString()})<br>
+            <div class="item-row">
+
+                <span>
+                    • ${item.name}
+                    ($${item.price.toLocaleString()})
+                </span>
+
+                <button
+                    class="remove-btn"
+                    onclick="removeItem(${item.index})">
+                    Hapus
+                </button>
+
+            </div>
             `;
 
             text +=
